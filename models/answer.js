@@ -3,10 +3,13 @@
 module.exports = (sequelize, DataTypes) => {
   let Answer = sequelize.define('answer', {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING('8'),
       primaryKey: true,
-      autoIncrement: true,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        // Alphanumeric string, lowercase, 8 characters long
+        is: "^[a-z0-9]{8}$"
+      }
     },
     text: {
       type: DataTypes.STRING,
