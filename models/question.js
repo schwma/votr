@@ -24,6 +24,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       allowNull: false
+    },
+    token: {
+      type: DataTypes.STRING('32'),
+      allowNull: false,
+      validate: {
+        // Alphanumeric string, lowercase, 32 characters long
+        is: "^[a-z0-9]{32}$"
+      }
     }
   });
 
