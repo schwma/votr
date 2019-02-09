@@ -28,5 +28,25 @@ module.exports = {
     }).catch(function(err) {
       res.send(err);
     });
+  },
+  delete(req, res) {
+    let id = req.params.question_id;
+    let token = req.body.token;
+
+    models.question.destroy({
+      where: {
+        id: id,
+        token: token
+      }
+    }).then(function(result) {
+      // Check whether entry was found and deleted
+      if (result == 1) {
+        res.send("Question with id {" + id + "} was deleted!");
+      } else {
+        res.send("No entry was deleted!")
+      }
+    }).catch(function(err) {
+      res.send(err);
+    });
   }
 }
