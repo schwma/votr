@@ -29,6 +29,20 @@ module.exports = {
       res.send(err);
     });
   },
+  get(req, res) {
+    let id = req.params.question_id;
+
+    // TODO: include answers and votes
+    models.question.findOne({
+      where: {
+        id: id
+      }
+    }).then(function(result) {
+      res.json(result);
+    }).catch(function(err) {
+      res.send(err);
+    })
+  },
   delete(req, res) {
     let id = req.params.question_id;
     let token = req.body.token;
