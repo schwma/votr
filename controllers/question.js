@@ -1,5 +1,7 @@
 'use strict';
 
+const Promise = require('bluebird');
+
 const models = require('../models');
 const crypto = require('crypto-extra');
 
@@ -32,13 +34,39 @@ module.exports = {
   get(req, res) {
     let id = req.params.question_id;
 
-    // TODO: include answers and votes
+    let questionPlain;
+
     models.question.findOne({
       where: {
         id: id
+      },
+      attributes: {
+        exclude: ['token']
       }
-    }).then(function(result) {
-      res.json(result);
+    }).then(function(question) {
+      questionPlain = question.get({plain: true});
+
+      let answersPlain = [];
+      question.getAnswers().then(answers => {
+        let promises = [];
+
+        for (let i = 0; i < answers.length; i++) {
+          promises.push(new Promise((resolve, reject) => {
+            return answers[i].getVotes().then(votes => {
+              let answerPlain = answers[i].get({plain: true});
+              answerPlain.votes = votes.length;
+              answersPlain.push(answerPlain);
+              resolve();
+            });
+          }));
+        }
+
+        Promise.all(promises).then(function() {
+          questionPlain.answers = answersPlain;
+          res.json(questionPlain);
+        });
+
+      });
     }).catch(function(err) {
       res.send(err);
     })
