@@ -24,7 +24,7 @@ module.exports = {
     };
 
     models.question.create(question).then(function(result) {
-      res.send(question);
+      res.json(question);
     }).catch(function(err) {
       res.send(err);
     });
