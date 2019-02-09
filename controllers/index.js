@@ -7,5 +7,5 @@ const vote = require('./vote');
 module.exports = {
   question,
   answer,
-  vote
+  vote,
 };

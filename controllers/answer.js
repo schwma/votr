@@ -14,26 +14,32 @@ module.exports = {
 
     let answer = {
       id: answer_id,
-      text: text
+      text: text,
     };
 
-    models.question.findOne({
-      where: {
-        id: question_id,
-        token: token
-      }
-    }).then((question) => {
-      models.sequelize.transaction(function(t) {
-        return models.answer.create(answer, {transaction: t}).then((answerRecord) => {
-          return question.addAnswer(answerRecord, {transaction: t});
-        });
-      }).then(function(result) {
-        res.json(answer);
-      }).catch(function(err) {
+    models.question
+      .findOne({
+        where: {
+          id: question_id,
+          token: token,
+        },
+      })
+      .then((question) => {
+        models.sequelize
+          .transaction(function(t) {
+            return models.answer.create(answer, {transaction: t}).then((answerRecord) => {
+              return question.addAnswer(answerRecord, {transaction: t});
+            });
+          })
+          .then(function(result) {
+            res.json(answer);
+          })
+          .catch(function(err) {
+            res.send(err);
+          });
+      })
+      .catch(function(err) {
         res.send(err);
       });
-    }).catch(function(err) {
-      res.send(err);
-    });
-  }
-}
+  },
+};

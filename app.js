@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require("./models");
+const db = require('./models');
 const express = require('express');
 const bodyParser = require('body-parser');
 
