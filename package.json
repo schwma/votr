@@ -9,6 +9,8 @@
   "author": "Marcel Schwarz",
   "license": "MIT",
   "dependencies": {
+    "crypto-extra": "^0.4.0",
+    "express": "^4.16.4",
     "sequelize": "^4.42.0",
     "sqlite3": "^4.0.4"
   }
