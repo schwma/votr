@@ -25,7 +25,8 @@ module.exports = (sequelize, DataTypes) => {
     Answer.votes = Answer.hasMany(models.vote, {
       as: 'votes',
       foreignKey: 'answerId',
-      onDelete: 'cascade'
+      onDelete: 'cascade',
+      hooks: true
     });
   };
 

@@ -83,22 +83,24 @@ module.exports = {
     let token = req.body.token;
 
     models.question
-      .destroy({
+      .findOne({
         where: {
           id: id,
           token: token,
         },
       })
-      .then(function(result) {
-        // Check whether entry was found and deleted
-        if (result == 1) {
-          res.send('Question with id {' + id + '} was deleted!');
-        } else {
-          res.send('No entry was deleted!');
-        }
+      .then(function(question) {
+        question
+          .destroy()
+          .then(function() {
+            res.send('Question with id {' + id + '} was deleted!');
+          })
+          .catch(function(err) {
+            res.send('Failed to delete question with id {' + id + '}!');
+          });
       })
       .catch(function(err) {
-        res.send(err);
+        res.send('No entry was deleted!');
       });
   },
 };
