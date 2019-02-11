@@ -52,27 +52,33 @@ module.exports = {
         questionPlain = question.get({plain: true});
 
         let answersPlain = [];
-        question.getAnswers().then((answers) => {
-          let promises = [];
+        question
+          .getAnswers({
+            attributes: {
+              exclude: ['questionId'],
+            },
+          })
+          .then((answers) => {
+            let promises = [];
 
-          for (let i = 0; i < answers.length; i++) {
-            promises.push(
-              new Promise((resolve, reject) => {
-                return answers[i].getVotes().then((votes) => {
-                  let answerPlain = answers[i].get({plain: true});
-                  answerPlain.votes = votes.length;
-                  answersPlain.push(answerPlain);
-                  resolve();
-                });
-              })
-            );
-          }
+            for (let i = 0; i < answers.length; i++) {
+              promises.push(
+                new Promise((resolve, reject) => {
+                  return answers[i].getVotes().then((votes) => {
+                    let answerPlain = answers[i].get({plain: true});
+                    answerPlain.votes = votes.length;
+                    answersPlain.push(answerPlain);
+                    resolve();
+                  });
+                })
+              );
+            }
 
-          Promise.all(promises).then(function() {
-            questionPlain.answers = answersPlain;
-            res.json(questionPlain);
+            Promise.all(promises).then(function() {
+              questionPlain.answers = answersPlain;
+              res.json(questionPlain);
+            });
           });
-        });
       })
       .catch(function(err) {
         res.send(err);
