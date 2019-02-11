@@ -9,8 +9,6 @@ module.exports = {
   create(req, res) {
     let question_id = req.params.question_id;
     let answer_id = req.params.answer_id;
-    console.log(question_id);
-    console.log(answer_id);
 
     models.answer
       .findOne({
