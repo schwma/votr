@@ -11,8 +11,8 @@ module.exports = {
   create(req, res) {
     let id = crypto.randomString(8, base36);
     let text = req.body.text;
+    // "enabled" defaults to false if parameter isn't provided
     let enabled = false;
-    // "enabled" defaults to true if parameter isn't provided
     if (typeof req.body.enabled !== 'undefined') {
       enabled = req.body.enabled == 'true';
     }

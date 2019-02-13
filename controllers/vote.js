@@ -18,18 +18,24 @@ module.exports = {
         },
       })
       .then((answer) => {
-        models.sequelize
-          .transaction(function(t) {
-            return models.vote.create({}, {transaction: t}).then((voteRecord) => {
-              return answer.addVote(voteRecord, {transaction: t});
-            });
-          })
-          .then(function(result) {
-            res.send('ok');
-          })
-          .catch(function(err) {
-            res.send(err);
-          });
+        answer.getQuestion().then((question) => {
+          if (question.enabled) {
+            models.sequelize
+              .transaction(function(t) {
+                return models.vote.create({}, {transaction: t}).then((voteRecord) => {
+                  return answer.addVote(voteRecord, {transaction: t});
+                });
+              })
+              .then(function(result) {
+                res.send('ok');
+              })
+              .catch(function(err) {
+                res.send(err);
+              });
+          } else {
+            res.send('Question is not enabled!');
+          }
+        });
       })
       .catch(function(err) {
         res.send(err);
