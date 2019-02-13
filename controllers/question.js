@@ -84,6 +84,34 @@ module.exports = {
         res.send(err);
       });
   },
+  put(req, res) {
+    let id = req.params.question_id;
+    let token = req.body.token;
+
+    let questionPlain;
+
+    models.question
+      .findOne({
+        where: {
+          id: id,
+          token: token,
+        },
+      })
+      .then(function(question) {
+        questionPlain = question.get({plain: true});
+
+        if (typeof req.body.enabled !== 'undefined') {
+          questionPlain.enabled = req.body.enabled;
+        }
+
+        question.update(questionPlain, {fields: ['enabled']}).then(() => {
+          res.send('ok');
+        });
+      })
+      .catch(function(err) {
+        res.send(err);
+      });
+  },
   delete(req, res) {
     let id = req.params.question_id;
     let token = req.body.token;
