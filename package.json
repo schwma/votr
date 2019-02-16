@@ -8,6 +8,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write \"*.js\" --check \"src/**/*.js\""
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,json,css,md}": ["prettier --write", "git add"]
+  },
   "author": "Marcel Schwarz",
   "license": "MIT",
   "dependencies": {
@@ -18,6 +26,8 @@
     "sqlite3": "^4.0.4"
   },
   "devDependencies": {
+    "husky": "^1.3.1",
+    "lint-staged": "^8.1.4",
     "prettier": "1.16.4"
   }
 }
