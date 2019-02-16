@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write \"*.js\" --check \"src/**/*.js\""
+    "format": "prettier --write \"*.js\" --check \"{src,config}/**/*.{js,json,css,md}\""
   },
   "husky": {
     "hooks": {
@@ -14,7 +14,7 @@
     }
   },
   "lint-staged": {
-    "src/**/*.{js,json,css,md}": [
+    "{src,config}/**/*.{js,json,css,md}": [
       "prettier --write",
       "git add"
     ]

@@ -1,0 +1,27 @@
+{
+  "development": {
+    "dialect": "sqlite",
+    "storage": "polls-dev.db",
+    "operatorsAliases": false,
+    "define": {
+      "timestamps": false
+    }
+  },
+  "test": {
+    "dialect": "sqlite",
+    "storage": "polls-test.db",
+    "operatorsAliases": false,
+    "define": {
+      "timestamps": false
+    }
+  },
+  "production": {
+    "dialect": "sqlite",
+    "storage": "polls-prod.db",
+    "logging": false,
+    "operatorsAliases": false,
+    "define": {
+      "timestamps": false
+    }
+  }
+}
