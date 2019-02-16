@@ -2,6 +2,18 @@
 
 Votr is a lightweight web app that allows users to create polls consisting of a question and one or more answers that can be voted for.
 
+**NOTE: Votr is currently in development and does not yet have a user interface. Votr also currently does not feature any form of vote protection and thus does not prevent the same user from submitting multiple votes.**
+
+## Running Votr
+
+```bash
+# Install dependencies
+npm install
+
+# Start Votr
+npm run
+```
+
 ## REST API
 
 ### Overview
