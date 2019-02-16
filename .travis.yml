@@ -1,7 +1,14 @@
 language: node_js
 
 node_js:
- - "node"
+  - "node"
 
 env:
-- NODE_ENV=TEST
+  - NODE_ENV=TEST
+
+script:
+  - npm run format:test
+
+branches:
+  only:
+    - master

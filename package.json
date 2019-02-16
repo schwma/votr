@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write \"*.js\" --check \"{src,config}/**/*.{js,json,css,md}\""
+    "format:test": "prettier --list-different \"{src,config}/**/*.{js,json,css,md}\"",
+    "format": "prettier --write \"{src,config}/**/*.{js,json,css,md}\""
   },
   "husky": {
     "hooks": {
