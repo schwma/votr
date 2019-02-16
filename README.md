@@ -11,7 +11,7 @@ Votr is a lightweight web app that allows users to create polls consisting of a 
 npm install
 
 # Start Votr
-npm run
+npm start
 ```
 
 ## REST API
