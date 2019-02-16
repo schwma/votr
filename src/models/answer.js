@@ -8,13 +8,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         // Alphanumeric string, lowercase, 8 characters long
-        is: "^[a-z0-9]{8}$"
-      }
+        is: '^[a-z0-9]{8}$',
+      },
     },
     text: {
       type: DataTypes.STRING,
-      allowNull: false
-    }
+      allowNull: false,
+    },
   });
 
   Answer.associate = function(models) {
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'votes',
       foreignKey: 'answerId',
       onDelete: 'cascade',
-      hooks: true
+      hooks: true,
     });
   };
 
