@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write \"*.js\" --check \"{controllers, models, routes}/*.js\""
+    "format": "prettier --write \"*.js\" --check \"src/**/*.js\""
   },
   "author": "Marcel Schwarz",
   "license": "MIT",
