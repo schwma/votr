@@ -5,18 +5,18 @@ const Promise = require('bluebird');
 const models = require('../models');
 const crypto = require('crypto-extra');
 
-const base36 = 'abcdefghijklmnopqrstuvwxyz0123456789';
+const config = require(__dirname + '/../../config/votr.json');
 
 module.exports = {
   create(req, res) {
-    let id = crypto.randomString(8, base36);
+    let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let text = req.body.text;
     // "enabled" defaults to false if parameter isn't provided
     let enabled = false;
     if (typeof req.body.enabled !== 'undefined') {
       enabled = req.body.enabled == 'true';
     }
-    let token = crypto.randomString(32, base36);
+    let token = crypto.randomString(config.questionTokenLength, config.questionTokenAlphabet);
 
     let question = {
       id: id,

@@ -3,12 +3,12 @@
 const models = require('../models');
 const crypto = require('crypto-extra');
 
-const base36 = 'abcdefghijklmnopqrstuvwxyz0123456789';
+const config = require(__dirname + '/../../config/votr.json');
 
 module.exports = {
   create(req, res) {
     let question_id = req.params.question_id;
-    let answer_id = crypto.randomString(8, base36);
+    let answer_id = crypto.randomString(config.answerIdAlphabet, config.answerIdAlphabet);
     let text = req.body.text;
     let token = req.body.token;
 

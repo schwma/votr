@@ -1,14 +1,15 @@
 'use strict';
 
+const config = require(__dirname + '/../../config/votr.json');
+
 module.exports = (sequelize, DataTypes) => {
   let Question = sequelize.define('question', {
     id: {
-      type: DataTypes.STRING('8'),
+      type: DataTypes.STRING(config.questionIdLength),
       primaryKey: true,
       allowNull: false,
       validate: {
-        // Alphanumeric string, lowercase, 8 characters long
-        is: '^[a-z0-9]{8}$',
+        is: '^[' + config.questionIdAlphabetRegex + ']{' + config.questionIdLength + '}$',
       },
     },
     text: {
@@ -26,11 +27,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     token: {
-      type: DataTypes.STRING('32'),
+      type: DataTypes.STRING(config.questionTokenLength),
       allowNull: false,
       validate: {
-        // Alphanumeric string, lowercase, 32 characters long
-        is: '^[a-z0-9]{32}$',
+        is: '^[' + config.questionTokenAlphabetRegex + ']{' + config.questionTokenLength + '}$',
       },
     },
   });

@@ -1,0 +1,12 @@
+{
+  "webServerPort": 8080,
+  "questionTokenLength": 32,
+  "questionTokenAlphabet": "abcdefghijklmnopqrstuvwxyz0123456789",
+  "questionTokenAlphabetRegex": "a-z0-9",
+  "questionIdLength": 8,
+  "questionIdAlphabet": "abcdefghijklmnopqrstuvwxyz0123456789",
+  "questionIdAlphabetRegex": "a-z0-9",
+  "answerIdLength": 8,
+  "answerIdAlphabet": "abcdefghijklmnopqrstuvwxyz0123456789",
+  "answerIdAlphabetRegex": "a-z0-9"
+}
