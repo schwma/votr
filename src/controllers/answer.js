@@ -8,7 +8,7 @@ const config = require(__dirname + '/../../config/votr.json');
 module.exports = {
   create(req, res) {
     let question_id = req.params.question_id;
-    let answer_id = crypto.randomString(config.answerIdAlphabet, config.answerIdAlphabet);
+    let answer_id = crypto.randomString(config.answerIdLength, config.answerIdAlphabet);
     let text = req.body.text;
     let token = req.body.token;
 
