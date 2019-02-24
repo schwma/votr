@@ -39,9 +39,9 @@ $ curl --request POST --data "text=Which team do you think will win?&enabled=fal
 {"id":"i0o3g53q","text":"Which team do you think will win?","enabled":false,"token":"w5z966gxgh43nsrh9ofchjodgi8aj6lp"}
 ```
 
-Creating the question gave us our admin token, which allows us to add answers to our question and delete the entire poll. It also gave us the question ID of our question.
+Creating the question gave us our question token, which allows us to add answers to our question and delete the entire poll. It also gave us the question ID of our question.
 
-We will now create two answers, "Red Team" and "Blue Team", with our admin token and the question ID.
+We will now create two answers, "Red Team" and "Blue Team", with our question token and the question ID.
 
 ```bash
 $ curl --request POST --data "text=Red Team&token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/answer/i0o3g53q
@@ -86,3 +86,15 @@ To delete our poll we'll need our question ID and our admin token.
 $ curl --request DELETE --data "token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/question/i0o3g53q
 Question with id {i0o3g53q} was deleted!
 ```
+## Glossary
+
+- **Poll**: A combination of a *Question*, *Answers*, and *Votes*
+- **Question**: The question that a user wants to ask. Acts as the description text of a poll. An example for a question would be: "Which team do you think will win?" Several attributes are associated with a question that determine how the poll behaves. A question can also have answers associated with it.
+- **Answer**: A single entry, belonging to a question, that users can vote for. Continuing our example, an answer could be: "Blue Team". An answer can have zero or more votes.
+- **Vote**: A single vote for a single answer.
+- **Vote Protection**: Methods that prevent users from voting on the same poll twice.
+- **Question Token**: A secret token that allows the user to edit a poll. Example actions which require a question token are: adding an answer to a question, deleting a question. Voting does not require the question token.
+
+## License
+
+Votr is licensed under [MIT license](LICENSE).
