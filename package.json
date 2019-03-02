@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "test": "NODE_ENV=test mocha --recursive",
-    "format:test": "prettier --list-different \"{src,test,config}/**/*.{js,json,css,md}\"",
-    "format": "prettier --write \"{src,test,config}/**/*.{js,json,css,md}\"",
+    "format:test": "prettier --list-different \"{src,test,config,docs}/**/*.{js,json,css,md}\"",
+    "format": "prettier --write \"{src,test,config,docs}/**/*.{js,json,css,md}\"",
     "coverage": "NODE_ENV=test nyc mocha --recursive",
     "coverage-html": "NODE_ENV=test nyc --reporter=html mocha --recursive"
   },
@@ -17,7 +17,7 @@
     }
   },
   "lint-staged": {
-    "{src,test,config}/**/*.{js,json,css,md}": [
+    "*.{js,json,css,md}": [
       "prettier --write",
       "git add"
     ]
