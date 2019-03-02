@@ -1,23 +1,23 @@
 # Overview
 
-| CRUD   | Route                             | HTTP Verb | POST Body                                              | Result Example                                                                                                                                                                                                                   |
-| ------ | --------------------------------- | --------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|        | **Question**                      |           |                                                        |                                                                                                                                                                                                                                  |
-| Create | /api/question                     | POST      | "text=Which team do you think will win?&enabled=false" | \{"id":"i0o3g53q", "token":"w5z966gxgh43nsrh9ofchjodgi8aj6lp"}                                                                                                                                                                   |
-| Read   | /api/question/:question_id        | GET       | _empty_                                                | \{"id":"i0o3g53q","text":"Which team do you think will win?","creationDate":"2019-02-11T22:15:14.000Z","enabled":true,"answers":[\{"id":"mjw9imk3","text":"Red Team","votes":1},{"id":"t9i2gbw7","text":"Blue Team","votes":2}]} |
-| Update | /api/question/:question_id        | PUT       | "enabled=true"                                         | _empty_                                                                                                                                                                                                                          |
-| Delete | /api/question/:question_id        | DELETE    | "token=_token_"                                        | _empty_                                                                                                                                                                                                                          |
-|        | **Answer**                        |           |                                                        |                                                                                                                                                                                                                                  |
-| Create | /api/answer/:question_id          | POST      | text="Red Team&token=_token_"                          | \{"id":"mjw9imk3"}                                                                                                                                                                                                               |
-|        | **Vote**                          |           |                                                        |                                                                                                                                                                                                                                  |
-| Create | /api/vote/:question_id/:answer_id | POST      | _empty_                                                | _empty_                                                                                                                                                                                                                          |
+| CRUD   | Route                              | HTTP Verb | POST Body                                              | Result Example                                                                                                                                                                                                                   |
+| ------ | ---------------------------------- | --------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|        | **Question**                       |           |                                                        |                                                                                                                                                                                                                                  |
+| Create | /api/questions                     | POST      | "text=Which team do you think will win?&enabled=false" | \{"id":"i0o3g53q", "token":"w5z966gxgh43nsrh9ofchjodgi8aj6lp"}                                                                                                                                                                   |
+| Read   | /api/questions/:question_id        | GET       | _empty_                                                | \{"id":"i0o3g53q","text":"Which team do you think will win?","creationDate":"2019-02-11T22:15:14.000Z","enabled":true,"answers":[\{"id":"mjw9imk3","text":"Red Team","votes":1},{"id":"t9i2gbw7","text":"Blue Team","votes":2}]} |
+| Update | /api/questions/:question_id        | PUT       | "enabled=true"                                         | _empty_                                                                                                                                                                                                                          |
+| Delete | /api/questions/:question_id        | DELETE    | "token=_token_"                                        | _empty_                                                                                                                                                                                                                          |
+|        | **Answer**                         |           |                                                        |                                                                                                                                                                                                                                  |
+| Create | /api/answers/:question_id          | POST      | text="Red Team&token=_token_"                          | \{"id":"mjw9imk3"}                                                                                                                                                                                                               |
+|        | **Vote**                           |           |                                                        |                                                                                                                                                                                                                                  |
+| Create | /api/votes/:question_id/:answer_id | POST      | _empty_                                                | _empty_                                                                                                                                                                                                                          |
 
 # Example
 
 First we'll create our question: "Which team do you think will win?".
 
 ```bash
-$ curl --request POST --data "text=Which team do you think will win?&enabled=false" localhost:8080/api/question
+$ curl --request POST --data "text=Which team do you think will win?&enabled=false" localhost:8080/api/questions
 {"id":"i0o3g53q", "token":"w5z966gxgh43nsrh9ofchjodgi8aj6lp"}
 ```
 
@@ -26,17 +26,17 @@ Creating the question gave us our question token, which allows us to add answers
 We will now create two answers, "Red Team" and "Blue Team", with our question token and the question ID.
 
 ```bash
-$ curl --request POST --data "text=Red Team&token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/answer/i0o3g53q
+$ curl --request POST --data "text=Red Team&token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/answers/i0o3g53q
 {"id":"mjw9imk3","text":"Red Team"}
 
-$ curl --request POST --data "text=Blue Team&token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/answer/i0o3g53q
+$ curl --request POST --data "text=Blue Team&token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/answers/i0o3g53q
 {"id":"t9i2gbw7","text":"Blue Team"}
 ```
 
 Now lets enable our question to allow voting.
 
 ```bash
-$ curl --request PUT --data "enabled=true" localhost:8080/api/question/i0o3g53q
+$ curl --request PUT --data "enabled=true" localhost:8080/api/questions/i0o3g53q
 ```
 
 To vote on an answer we need the question ID and the answer ID that we want to vote on.
@@ -44,24 +44,24 @@ To vote on an answer we need the question ID and the answer ID that we want to v
 Let's vote once on the answer "Red Team" and twice on the answer "Blue Team".
 
 ```bash
-$ curl --request POST localhost:8080/api/vote/i0o3g53q/mjw9imk3
+$ curl --request POST localhost:8080/api/votes/i0o3g53q/mjw9imk3
 
-$ curl --request POST localhost:8080/api/vote/i0o3g53q/t9i2gbw7
+$ curl --request POST localhost:8080/api/votes/i0o3g53q/t9i2gbw7
 
-$ curl --request POST localhost:8080/api/vote/i0o3g53q/t9i2gbw7
+$ curl --request POST localhost:8080/api/votes/i0o3g53q/t9i2gbw7
 ```
 
 Now let's check the current state of our poll.
 
 ```bash
-$ curl --request GET localhost:8080/api/question/i0o3g53q
+$ curl --request GET localhost:8080/api/questions/i0o3g53q
 {"id":"i0o3g53q","text":"Which team do you think will win?","creationDate":"2019-02-11T22:15:14.000Z","enabled":true,"answers":[{"id":"mjw9imk3","text":"Red Team","votes":1},{"id":"t9i2gbw7","text":"Blue Team","votes":2}]}
 ```
 
 To delete our poll we'll need our question ID and our admin token.
 
 ```bash
-$ curl --request DELETE --data "token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/question/i0o3g53q
+$ curl --request DELETE --data "token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/questions/i0o3g53q
 ```
 
 # Details
@@ -76,7 +76,7 @@ Creates a poll question.
 
 -   **URL**
 
-    /api/question
+    /api/questions
 
 -   **Method:**
 
@@ -114,7 +114,7 @@ Creates a poll question.
 -   **Sample Call:**
 
 ```bash
-curl --request POST --data "text=Which team do you think will win?&enabled=false" localhost:8080/api/question
+curl --request POST --data "text=Which team do you think will win?&enabled=false" localhost:8080/api/questions
 ```
 
 -   **Notes:**
@@ -129,7 +129,7 @@ Returns information about a question, as well as the answers and votes that are 
 
 -   **URL**
 
-    /api/question/:question_id
+    /api/questions/:question_id
 
 -   **Method:**
 
@@ -162,7 +162,7 @@ Returns information about a question, as well as the answers and votes that are 
 -   **Sample Call:**
 
 ```bash
-curl --request GET localhost:8080/api/question/i0o3g53q
+curl --request GET localhost:8080/api/questions/i0o3g53q
 ```
 
 -   **Notes:**
@@ -177,7 +177,7 @@ Updates a question's details. Allows questions to be enabled or disabled.
 
 -   **URL**
 
-    /api/question/:question_id
+    /api/questions/:question_id
 
 -   **Method:**
 
@@ -231,7 +231,7 @@ Updates a question's details. Allows questions to be enabled or disabled.
 -   **Sample Call:**
 
 ```bash
-curl --request PUT --data "enabled=true" localhost:8080/api/question/i0o3g53q
+curl --request PUT --data "enabled=true" localhost:8080/api/questions/i0o3g53q
 ```
 
 -   **Notes:**
@@ -246,7 +246,7 @@ Deletes a question and all the answers and votes that are associated with it.
 
 -   **URL**
 
-    /api/question/:question_id
+    /api/questions/:question_id
 
 -   **Method:**
 
@@ -300,7 +300,7 @@ Deletes a question and all the answers and votes that are associated with it.
 -   **Sample Call:**
 
 ```bash
-curl --request DELETE --data "enabled=true" localhost:8080/api/question/i0o3g53q
+curl --request DELETE --data "enabled=true" localhost:8080/api/questions/i0o3g53q
 ```
 
 -   **Notes:**
@@ -317,7 +317,7 @@ Creates an answer for a poll question.
 
 -   **URL**
 
-    /api/answer/:question_id
+    /api/answers/:question_id
 
 -   **Method:**
 
@@ -366,7 +366,7 @@ Creates an answer for a poll question.
 -   **Sample Call:**
 
 ```bash
-curl --request POST --data "text=Blue Team&token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/answer/i0o3g53q
+curl --request POST --data "text=Blue Team&token=w5z966gxgh43nsrh9ofchjodgi8aj6lp" localhost:8080/api/answers/i0o3g53q
 ```
 
 -   **Notes:**
@@ -383,7 +383,7 @@ Create a vote for a poll's answer.
 
 -   **URL**
 
-    /api/vote/:question_id/:answer_id
+    /api/votes/:question_id/:answer_id
 
 -   **Method:**
 
@@ -428,7 +428,7 @@ Create a vote for a poll's answer.
 -   **Sample Call:**
 
 ```bash
-curl --request POST localhost:8080/api/vote/i0o3g53q/t9i2gbw7
+curl --request POST localhost:8080/api/votes/i0o3g53q/t9i2gbw7
 ```
 
 -   **Notes:**
