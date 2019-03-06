@@ -11,7 +11,9 @@ const faker = require('faker');
 const config = require(__dirname + '/../../config/votr.json');
 const expect = chai.expect;
 
-describe('GET /api/question/:question_id', function() {
+const errorDoesNotExist = 'The question with the requested ID does not exist';
+
+describe('GET /api/questions/:question_id', function() {
   before(function() {
     return db.sequelize.sync().then(function() {
       return Promise.all([
@@ -34,7 +36,7 @@ describe('GET /api/question/:question_id', function() {
     Promise.all([db.question.create(question)]);
 
     request(app)
-      .get('/api/question/' + id)
+      .get('/api/questions/' + id)
       .end(function(err, res) {
         expect(res.status).to.equal(200);
         expect(res.body).to.have.all.keys('id', 'text', 'creationDate', 'enabled', 'answers');
@@ -74,7 +76,7 @@ describe('GET /api/question/:question_id', function() {
     Promise.all([db.question.create(question), db.answer.create(answer)]);
 
     request(app)
-      .get('/api/question/' + questionId)
+      .get('/api/questions/' + questionId)
       .end(function(err, res) {
         expect(res.status).to.equal(200);
         expect(res.body).to.have.all.keys('id', 'text', 'creationDate', 'enabled', 'answers');
@@ -132,7 +134,7 @@ describe('GET /api/question/:question_id', function() {
     ]);
 
     request(app)
-      .get('/api/question/' + questionId)
+      .get('/api/questions/' + questionId)
       .end(function(err, res) {
         expect(res.status).to.equal(200);
         expect(res.body).to.have.all.keys('id', 'text', 'creationDate', 'enabled', 'answers');
@@ -213,7 +215,7 @@ describe('GET /api/question/:question_id', function() {
     ]);
 
     request(app)
-      .get('/api/question/' + questionId)
+      .get('/api/questions/' + questionId)
       .end(function(err, res) {
         expect(res.status).to.equal(200);
         expect(res.body).to.have.all.keys('id', 'text', 'creationDate', 'enabled', 'answers');
@@ -232,6 +234,19 @@ describe('GET /api/question/:question_id', function() {
         expect(res.body.answers[1].id).to.equal(answerId2);
         expect(res.body.answers[1].text).to.equal(answerText2);
         expect(res.body.answers[1].votes).to.equal(1);
+        done();
+      });
+  });
+
+  it("should fail to get a question's details (does not exist)", function(done) {
+    let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
+
+    request(app)
+      .get('/api/questions/' + id)
+      .end(function(err, res) {
+        expect(res.status).to.equal(404);
+        expect(res.body).to.have.all.keys('error');
+        expect(res.body.error).to.equal(errorDoesNotExist);
         done();
       });
   });
