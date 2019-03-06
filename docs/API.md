@@ -197,7 +197,7 @@ Updates a question's details. Allows questions to be enabled or disabled.
 
     **Required:**
 
-    None
+    `token=[string]`
 
     **Optional:**
 
@@ -284,11 +284,6 @@ Deletes a question and all the answers and votes that are associated with it.
 
     OR
 
-    -   **Code:** 422 Unprocessable Entity
-        **Content:** `{ error: "Value of argument 'enabled' must be a boolean" }`
-
-    OR
-
     -   **Code:** 401 Unauthorized
         **Content:** `{ error: "Token is not authorized to delete this question" }`
 
@@ -336,6 +331,8 @@ Creates an answer for a poll question.
 -   **Data Params**
 
     **Required:**
+
+    `token=[string]`
 
     `text=[string]`
 
@@ -434,3 +431,5 @@ curl --request POST localhost:8080/api/votes/i0o3g53q/t9i2gbw7
 -   **Notes:**
 
     None
+
+---
