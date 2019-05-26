@@ -16,6 +16,8 @@ const errorToken = 'Missing argument: token';
 const errorUnauthorized = 'Token is not authorized to delete this question';
 const errorNotFound = 'The question with the requested ID does not exist';
 
+const errors = require('./../../src/helpers/errors');
+
 describe('DELETE /api/questions/:question_id', function() {
   before(function() {
     return db.sequelize.sync().then(function() {
@@ -46,7 +48,7 @@ describe('DELETE /api/questions/:question_id', function() {
         expect(res.body).to.be.empty;
 
         // Check whether question is deleted
-        models.question.count({where: {id: res.body.id, token: res.body.token}}).then((count) => {
+        models.question.count({where: {id: id, token: token}}).then((count) => {
           expect(count).to.equal(0);
           done();
         });
@@ -70,10 +72,10 @@ describe('DELETE /api/questions/:question_id', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(400);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).equal(errorToken);
+        expect(res.body).to.deep.equal(errors.MISSING_ARGUMENT_TOKEN);
 
         // Check whether question is deleted
-        models.question.count({where: {id: res.body.id, token: res.body.token}}).then((count) => {
+        models.question.count({where: {id: id, token: token}}).then((count) => {
           expect(count).to.equal(1);
           done();
         });
@@ -97,10 +99,10 @@ describe('DELETE /api/questions/:question_id', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(401);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).equal(errorUnauthorized);
+        expect(res.body).to.deep.equal(errors.UNAUTHORIZED_QUESTION_DELETE);
 
         // Check whether question is deleted
-        models.question.count({where: {id: res.body.id, token: res.body.token}}).then((count) => {
+        models.question.count({where: {id: id, token: token}}).then((count) => {
           expect(count).to.equal(1);
           done();
         });
@@ -117,7 +119,8 @@ describe('DELETE /api/questions/:question_id', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(404);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).equal(errorNotFound);
+        expect(res.body).to.deep.equal(errors.DOES_NOT_EXIST_QUESTION);
+        done();
       });
   });
 });

@@ -11,7 +11,7 @@ const faker = require('faker');
 const config = require(__dirname + '/../../config/votr.json');
 const expect = chai.expect;
 
-const errorDoesNotExist = 'The question with the requested ID does not exist';
+const errors = require('./../../src/helpers/errors');
 
 describe('GET /api/questions/:question_id', function() {
   before(function() {
@@ -246,7 +246,7 @@ describe('GET /api/questions/:question_id', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(404);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorDoesNotExist);
+        expect(res.body).to.deep.equal(errors.DOES_NOT_EXIST_QUESTION);
         done();
       });
   });

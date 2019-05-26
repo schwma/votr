@@ -12,10 +12,7 @@ const faker = require('faker');
 const config = require(__dirname + '/../../config/votr.json');
 const expect = chai.expect;
 
-const errorToken = 'Missing argument: token';
-const errorEnabled = "Value of argument 'enabled' must be a boolean";
-const errorUnauthorized = 'Token is not authorized to update this question';
-const errorNotFound = 'The question with the requested ID does not exist';
+const errors = require('./../../src/helpers/errors');
 
 describe('UPDATE /api/questions/:question_id', function() {
   before(function() {
@@ -39,9 +36,11 @@ describe('UPDATE /api/questions/:question_id', function() {
 
     Promise.all([db.question.create(question)]);
 
+    enabled = !enabled;
+
     request(app)
       .put('/api/questions/' + id)
-      .send({token: token, enabled: (!enabled).toString()})
+      .send({token: token, enabled: enabled})
       .end(function(err, res) {
         expect(res.status).to.equal(204);
         expect(res.body).to.be.empty;
@@ -50,8 +49,72 @@ describe('UPDATE /api/questions/:question_id', function() {
           let questionPlain = question.get({plain: true});
           expect(questionPlain.id).to.equal(id);
           expect(questionPlain.text).to.equal(text);
-          expect(questionPlain.date).to.equal(date);
-          expect(questionPlain.enabled).to.equal(!enabled);
+          expect(questionPlain.creationDate.toISOString()).to.equal(new Date(date).toISOString());
+          expect(questionPlain.enabled).to.equal(enabled);
+          expect(questionPlain.token).to.equal(token);
+          done();
+        });
+      });
+  });
+
+  it("should update a question's details (enabled = true -> enabled = false)", function(done) {
+    let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
+    let text = faker.lorem.sentences();
+    let date = faker.date.recent().toISOString();
+    let enabled = true;
+    let token = crypto.randomString(config.questionTokenLength, config.questionTokenAlphabet);
+
+    let question = {id: id, text: text, creationDate: date, enabled: enabled, token: token};
+
+    Promise.all([db.question.create(question)]);
+
+    enabled = !enabled;
+
+    request(app)
+      .put('/api/questions/' + id)
+      .send({token: token, enabled: enabled})
+      .end(function(err, res) {
+        expect(res.status).to.equal(204);
+        expect(res.body).to.be.empty;
+
+        models.question.findOne({where: {id: id, token: token}}).then((question) => {
+          let questionPlain = question.get({plain: true});
+          expect(questionPlain.id).to.equal(id);
+          expect(questionPlain.text).to.equal(text);
+          expect(questionPlain.creationDate.toISOString()).to.equal(new Date(date).toISOString());
+          expect(questionPlain.enabled).to.equal(enabled);
+          expect(questionPlain.token).to.equal(token);
+          done();
+        });
+      });
+  });
+
+  it("should update a question's details (enabled = false -> enabled = true)", function(done) {
+    let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
+    let text = faker.lorem.sentences();
+    let date = faker.date.recent().toISOString();
+    let enabled = false;
+    let token = crypto.randomString(config.questionTokenLength, config.questionTokenAlphabet);
+
+    let question = {id: id, text: text, creationDate: date, enabled: enabled, token: token};
+
+    Promise.all([db.question.create(question)]);
+
+    enabled = !enabled;
+
+    request(app)
+      .put('/api/questions/' + id)
+      .send({token: token, enabled: enabled})
+      .end(function(err, res) {
+        expect(res.status).to.equal(204);
+        expect(res.body).to.be.empty;
+
+        models.question.findOne({where: {id: id, token: token}}).then((question) => {
+          let questionPlain = question.get({plain: true});
+          expect(questionPlain.id).to.equal(id);
+          expect(questionPlain.text).to.equal(text);
+          expect(questionPlain.creationDate.toISOString()).to.equal(new Date(date).toISOString());
+          expect(questionPlain.enabled).to.equal(enabled);
           expect(questionPlain.token).to.equal(token);
           done();
         });
@@ -81,7 +144,7 @@ describe('UPDATE /api/questions/:question_id', function() {
           let questionPlain = question.get({plain: true});
           expect(questionPlain.id).to.equal(id);
           expect(questionPlain.text).to.equal(text);
-          expect(questionPlain.date).to.equal(date);
+          expect(questionPlain.creationDate.toISOString()).to.equal(new Date(date).toISOString());
           expect(questionPlain.enabled).to.equal(enabled);
           expect(questionPlain.token).to.equal(token);
           done();
@@ -102,18 +165,18 @@ describe('UPDATE /api/questions/:question_id', function() {
 
     request(app)
       .put('/api/questions/' + id)
-      .send({enabled: (!enabled).toString()})
+      .send({enabled: !enabled})
       .end(function(err, res) {
         expect(res.status).to.equal(400);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorToken);
+        expect(res.body).to.deep.equal(errors.MISSING_ARGUMENT_TOKEN);
 
         // Unchanged values
         models.question.findOne({where: {id: id, token: token}}).then((question) => {
           let questionPlain = question.get({plain: true});
           expect(questionPlain.id).to.equal(id);
           expect(questionPlain.text).to.equal(text);
-          expect(questionPlain.date).to.equal(date);
+          expect(questionPlain.creationDate.toISOString()).to.equal(new Date(date).toISOString());
           expect(questionPlain.enabled).to.equal(enabled);
           expect(questionPlain.token).to.equal(token);
           done();
@@ -138,14 +201,14 @@ describe('UPDATE /api/questions/:question_id', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(422);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorEnabled);
+        expect(res.body).to.deep.equal(errors.INVALID_VALUE_ENABLED);
 
         // Unchanged values
         models.question.findOne({where: {id: id, token: token}}).then((question) => {
           let questionPlain = question.get({plain: true});
           expect(questionPlain.id).to.equal(id);
           expect(questionPlain.text).to.equal(text);
-          expect(questionPlain.date).to.equal(date);
+          expect(questionPlain.creationDate.toISOString()).to.equal(new Date(date).toISOString());
           expect(questionPlain.enabled).to.equal(enabled);
           expect(questionPlain.token).to.equal(token);
           done();
@@ -166,18 +229,18 @@ describe('UPDATE /api/questions/:question_id', function() {
 
     request(app)
       .put('/api/questions/' + id)
-      .send({token: 'incorrect-token', enabled: (!enabled).toString()})
+      .send({token: 'incorrect-token', enabled: !enabled})
       .end(function(err, res) {
         expect(res.status).to.equal(401);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorUnauthorized);
+        expect(res.body).to.deep.equal(errors.UNAUTHORIZED_QUESTION_UPDATE);
 
         // Unchanged values
         models.question.findOne({where: {id: id, token: token}}).then((question) => {
           let questionPlain = question.get({plain: true});
           expect(questionPlain.id).to.equal(id);
           expect(questionPlain.text).to.equal(text);
-          expect(questionPlain.date).to.equal(date);
+          expect(questionPlain.creationDate.toISOString()).to.equal(new Date(date).toISOString());
           expect(questionPlain.enabled).to.equal(enabled);
           expect(questionPlain.token).to.equal(token);
           done();
@@ -192,11 +255,11 @@ describe('UPDATE /api/questions/:question_id', function() {
 
     request(app)
       .put('/api/questions/' + id)
-      .send({token: token, enabled: (!enabled).toString()})
+      .send({token: token, enabled: !enabled})
       .end(function(err, res) {
         expect(res.status).to.equal(404);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorNotFound);
+        expect(res.body).to.deep.equal(errors.DOES_NOT_EXIST_QUESTION);
         done();
       });
   });

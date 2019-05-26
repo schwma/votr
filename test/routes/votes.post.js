@@ -12,9 +12,7 @@ const faker = require('faker');
 const config = require(__dirname + '/../../config/votr.json');
 const expect = chai.expect;
 
-const errorEnabled = 'Voting is not enabled for this question';
-const errorNotFoundQuestion = 'The question with the requested ID does not exist';
-const errorNotFoundAnswer = 'The answer with the requested ID does not exist';
+const errors = require('./../../src/helpers/errors');
 
 describe('POST /api/votes/:question_id/:answer_id', function() {
   before(function() {
@@ -107,7 +105,7 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
       .post('/api/votes/' + questionId + '/' + answerId)
       .end(function(err, res) {
         expect(res.status).to.equal(401);
-        expect(res.body.error).to.equal(errorEnabled);
+        expect(res.body).to.deep.equal(errors.NOT_ENABLED_VOTING);
 
         models.vote
           .count({
@@ -136,7 +134,7 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
       .post('/api/votes/' + questionId + '/' + answerId)
       .end(function(err, res) {
         expect(res.status).to.equal(404);
-        expect(res.body.error).to.equal(errorNotFoundQuestion);
+        expect(res.body).to.deep.equal(errors.DOES_NOT_EXIST_QUESTION);
 
         models.vote
           .count({
@@ -179,7 +177,7 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
       .post('/api/votes/' + questionId + '/' + answerId)
       .end(function(err, res) {
         expect(res.status).to.equal(404);
-        expect(res.body.error).to.equal(errorNotFoundAnswer);
+        expect(res.body).to.deep.equal(errors.DOES_NOT_EXIST_ANSWER);
 
         models.vote
           .count({

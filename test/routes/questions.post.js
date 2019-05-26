@@ -11,8 +11,7 @@ const faker = require('faker');
 const config = require(__dirname + '/../../config/votr.json');
 const expect = chai.expect;
 
-const errorText = 'Missing argument: text';
-const errorEnabled = "Value of argument 'enabled' must be a boolean";
+const errors = require('./../../src/helpers/errors');
 
 describe('POST /api/questions', function() {
   before(function() {
@@ -100,7 +99,7 @@ describe('POST /api/questions', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(400);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorText);
+        expect(res.body).to.deep.equal(errors.MISSING_ARGUMENT_TEXT);
         done();
       });
   });
@@ -114,7 +113,7 @@ describe('POST /api/questions', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(422);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorEnabled);
+        expect(res.body).to.deep.equal(errors.INVALID_VALUE_ENABLED);
         done();
       });
   });
@@ -128,7 +127,7 @@ describe('POST /api/questions', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(422);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorEnabled);
+        expect(res.body).to.deep.equal(errors.INVALID_VALUE_ENABLED);
         done();
       });
   });

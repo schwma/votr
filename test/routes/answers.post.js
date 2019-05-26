@@ -16,6 +16,8 @@ const errorText = 'Missing argument: text';
 const errorUnauthorized = 'Token is not authorized to delete this question';
 const errorNotFound = 'The question with the requested ID does not exist';
 
+const errors = require('./../../src/helpers/errors');
+
 describe('POST /api/answers/:question_id', function() {
   before(function() {
     return db.sequelize.sync().then(function() {
@@ -86,15 +88,52 @@ describe('POST /api/answers/:question_id', function() {
 
     Promise.all([db.question.create(question)]);
 
-    let answerText = faker.lorem.sentence();
-
     request(app)
       .post('/api/answers/' + questionId)
       .send({token: token})
       .end(function(err, res) {
         expect(res.status).to.equal(400);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorText);
+        expect(res.body).to.deep.equal(errors.MISSING_ARGUMENT_TEXT);
+
+        models.answer
+          .count({
+            where: {id: res.body.id},
+            include: [{model: models.question, as: 'question', where: {id: questionId}}],
+          })
+          .then((count) => {
+            expect(count).to.equal(0);
+            done();
+          });
+      });
+  });
+
+  it('should fail to create an answer (missing argument token)', function(done) {
+    let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
+    let questionText = faker.lorem.sentences();
+    let date = faker.date.recent().toISOString();
+    let enabled = faker.random.boolean();
+    let token = crypto.randomString(config.questionTokenLength, config.questionTokenAlphabet);
+
+    let question = {
+      id: questionId,
+      text: questionText,
+      creationDate: date,
+      enabled: enabled,
+      token: token,
+    };
+
+    Promise.all([db.question.create(question)]);
+
+    let answerText = faker.lorem.sentence();
+
+    request(app)
+      .post('/api/answers/' + questionId)
+      .send({text: answerText})
+      .end(function(err, res) {
+        expect(res.status).to.equal(400);
+        expect(res.body).to.have.all.keys('error');
+        expect(res.body).to.deep.equal(errors.MISSING_ARGUMENT_TOKEN);
 
         models.answer
           .count({
@@ -133,7 +172,7 @@ describe('POST /api/answers/:question_id', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(401);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorUnauthorized);
+        expect(res.body).to.deep.equal(errors.UNAUTHORIZED_ANSWER_CREATE);
 
         models.answer
           .count({
@@ -159,7 +198,7 @@ describe('POST /api/answers/:question_id', function() {
       .end(function(err, res) {
         expect(res.status).to.equal(404);
         expect(res.body).to.have.all.keys('error');
-        expect(res.body.error).to.equal(errorNotFound);
+        expect(res.body).to.deep.equal(errors.DOES_NOT_EXIST_QUESTION);
 
         models.answer
           .count({

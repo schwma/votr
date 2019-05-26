@@ -7,14 +7,25 @@ const crypto = require('crypto-extra');
 
 const config = require(__dirname + '/../../config/votr.json');
 
+const errors = require('./../helpers/errors');
+
 module.exports = {
   create(req, res) {
     let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let text = req.body.text;
+    if (typeof req.body.text === 'undefined') {
+      res.status(400).json(errors.MISSING_ARGUMENT_TEXT);
+      return;
+    }
     // "enabled" defaults to false if parameter isn't provided
     let enabled = false;
     if (typeof req.body.enabled !== 'undefined') {
-      enabled = req.body.enabled == 'true';
+      if (typeof req.body.enabled === 'boolean') {
+        enabled = req.body.enabled;
+      } else {
+        res.status(422).json(errors.INVALID_VALUE_ENABLED);
+        return;
+      }
     }
     let token = crypto.randomString(config.questionTokenLength, config.questionTokenAlphabet);
 
@@ -25,19 +36,17 @@ module.exports = {
       token: token,
     };
 
-    models.question
-      .create(question)
-      .then(function(result) {
-        res.json(question);
-      })
-      .catch(function(err) {
-        res.send(err);
-      });
+    models.question.create(question).then(function(result) {
+      let returnQuestion = {
+        id: question.id,
+        token: question.token,
+      };
+
+      res.status(201).json(returnQuestion);
+    });
   },
   get(req, res) {
     let id = req.params.question_id;
-
-    let questionPlain;
 
     models.question
       .findOne({
@@ -49,7 +58,7 @@ module.exports = {
         },
       })
       .then(function(question) {
-        questionPlain = question.get({plain: true});
+        let questionPlain = question.get({plain: true});
 
         let answersPlain = [];
         question
@@ -76,65 +85,79 @@ module.exports = {
 
             Promise.all(promises).then(function() {
               questionPlain.answers = answersPlain;
-              res.json(questionPlain);
+              res.status(200).json(questionPlain);
             });
           });
       })
       .catch(function(err) {
-        res.send(err);
+        res.status(404).json(errors.DOES_NOT_EXIST_QUESTION);
       });
   },
   put(req, res) {
     let id = req.params.question_id;
     let token = req.body.token;
 
-    let questionPlain;
+    if (typeof req.body.token === 'undefined') {
+      res.status(400).json(errors.MISSING_ARGUMENT_TOKEN);
+      return;
+    }
 
     models.question
       .findOne({
         where: {
           id: id,
-          token: token,
         },
       })
       .then(function(question) {
-        questionPlain = question.get({plain: true});
-
-        if (typeof req.body.enabled !== 'undefined') {
-          questionPlain.enabled = req.body.enabled;
+        if (question.token !== token) {
+          res.status(401).json(errors.UNAUTHORIZED_QUESTION_UPDATE);
+          return;
         }
 
-        question.update(questionPlain, {fields: ['enabled']}).then(() => {
-          res.send('ok');
+        if (typeof req.body.enabled !== 'undefined') {
+          if (typeof req.body.enabled === 'boolean') {
+            question.enabled = req.body.enabled;
+          } else {
+            res.status(422).json(errors.INVALID_VALUE_ENABLED);
+            return;
+          }
+        }
+
+        question.update(question, {fields: ['enabled']}).then(() => {
+          res.status(204).send();
         });
       })
       .catch(function(err) {
-        res.send(err);
+        res.status(404).json(errors.DOES_NOT_EXIST_QUESTION);
       });
   },
   delete(req, res) {
     let id = req.params.question_id;
     let token = req.body.token;
 
+    if (typeof req.body.token === 'undefined') {
+      res.status(400).json(errors.MISSING_ARGUMENT_TOKEN);
+      return;
+    }
+
     models.question
       .findOne({
         where: {
           id: id,
-          token: token,
         },
       })
       .then(function(question) {
-        question
-          .destroy()
-          .then(function() {
-            res.send('Question with id {' + id + '} was deleted!');
-          })
-          .catch(function(err) {
-            res.send('Failed to delete question with id {' + id + '}!');
-          });
+        if (question.token !== token) {
+          res.status(401).json(errors.UNAUTHORIZED_QUESTION_DELETE);
+          return;
+        }
+
+        question.destroy().then(function() {
+          res.status(204).send();
+        });
       })
       .catch(function(err) {
-        res.send('No entry was deleted!');
+        res.status(404).json(errors.DOES_NOT_EXIST_QUESTION);
       });
   },
 };
