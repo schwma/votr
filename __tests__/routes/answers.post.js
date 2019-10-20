@@ -13,7 +13,7 @@ const config = require(__dirname + '/../../config/votr.json');
 const errors = require('./../../src/helpers/errors');
 
 describe('POST /api/answers/:question_id', function() {
-  beforeAll(function() {
+  beforeEach(function() {
     return db.sequelize.sync().then(function() {
       return Promise.all([
         db.question.destroy({where: {}}),
