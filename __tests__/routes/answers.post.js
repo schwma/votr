@@ -88,7 +88,6 @@ describe('POST /api/answers/:question_id', () => {
 
         return models.answer
           .count({
-            where: {id: res.body.id},
             include: [{model: models.question, as: 'question', where: {id: questionId}}],
           })
           .then((count) => {
@@ -125,7 +124,6 @@ describe('POST /api/answers/:question_id', () => {
 
         return models.answer
           .count({
-            where: {id: res.body.id},
             include: [{model: models.question, as: 'question', where: {id: questionId}}],
           })
           .then((count) => {
@@ -162,7 +160,6 @@ describe('POST /api/answers/:question_id', () => {
 
         return models.answer
           .count({
-            where: {id: res.body.id},
             include: [{model: models.question, as: 'question', where: {id: questionId}}],
           })
           .then((count) => {
@@ -186,7 +183,6 @@ describe('POST /api/answers/:question_id', () => {
 
         return models.answer
           .count({
-            where: {id: res.body.id},
             include: [{model: models.question, as: 'question', where: {id: questionId}}],
           })
           .then((count) => {
