@@ -7,6 +7,7 @@ const models = require('./../../src/models');
 const request = require('supertest');
 const crypto = require('crypto-extra');
 const faker = require('faker');
+faker.seed(4);
 
 const config = require(__dirname + '/../../config/votr.json');
 

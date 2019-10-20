@@ -6,6 +6,7 @@ const db = require('./../../src/app').db;
 const request = require('supertest');
 const crypto = require('crypto-extra');
 const faker = require('faker');
+faker.seed(2);
 
 const config = require(__dirname + '/../../config/votr.json');
 

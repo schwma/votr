@@ -6,6 +6,7 @@ const models = require('./../../src/models');
 
 const request = require('supertest');
 const faker = require('faker');
+faker.seed(1);
 
 const config = require(__dirname + '/../../config/votr.json');
 
