@@ -2,7 +2,6 @@
   "development": {
     "dialect": "sqlite",
     "storage": "polls-dev.db",
-    "operatorsAliases": false,
     "define": {
       "timestamps": false
     }
@@ -11,7 +10,6 @@
     "dialect": "sqlite",
     "storage": "polls-test.db",
     "logging": false,
-    "operatorsAliases": false,
     "define": {
       "timestamps": false
     }
@@ -20,7 +18,6 @@
     "dialect": "sqlite",
     "storage": "polls-prod.db",
     "logging": false,
-    "operatorsAliases": false,
     "define": {
       "timestamps": false
     }
