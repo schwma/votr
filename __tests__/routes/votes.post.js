@@ -13,18 +13,12 @@ const config = require(__dirname + '/../../config/votr.json');
 
 const errors = require('./../../src/helpers/errors');
 
-describe('POST /api/votes/:question_id/:answer_id', function() {
-  beforeEach(function() {
-    return db.sequelize.sync().then(function() {
-      return Promise.all([
-        db.question.destroy({where: {}}),
-        db.answer.destroy({where: {}}),
-        db.vote.destroy({where: {}}),
-      ]);
-    });
+describe('POST /api/votes/:question_id/:answer_id', () => {
+  beforeEach(async () => {
+    await db.sequelize.sync({force: true});
   });
 
-  it('should create a vote', function(done) {
+  it('should create a vote', () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -50,13 +44,13 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
 
     Promise.all([db.question.create(question), db.answer.create(answer)]);
 
-    request(app)
+    return request(app)
       .post('/api/votes/' + questionId + '/' + answerId)
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(204);
         expect(res.text).toEqual('');
 
-        models.vote
+        return models.vote
           .count({
             include: [
               {
@@ -69,12 +63,11 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
           })
           .then((vote) => {
             expect(vote).toEqual(1);
-            done();
           });
       });
   });
 
-  it('should fail to create a vote (enabled == false)', function(done) {
+  it('should fail to create a vote (enabled == false)', () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -100,13 +93,13 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
 
     Promise.all([db.question.create(question), db.answer.create(answer)]);
 
-    request(app)
+    return request(app)
       .post('/api/votes/' + questionId + '/' + answerId)
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(401);
         expect(res.body).toEqual(errors.NOT_ENABLED_VOTING);
 
-        models.vote
+        return models.vote
           .count({
             include: [
               {
@@ -119,23 +112,22 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
           })
           .then((vote) => {
             expect(vote).toEqual(0);
-            done();
           });
       });
   });
 
-  it('should fail to create a vote (question does not exist)', function(done) {
+  it('should fail to create a vote (question does not exist)', () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
 
     let answerId = crypto.randomString(config.answerIdLength, config.answerIdAlphabet);
 
-    request(app)
+    return request(app)
       .post('/api/votes/' + questionId + '/' + answerId)
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(404);
         expect(res.body).toEqual(errors.DOES_NOT_EXIST_QUESTION);
 
-        models.vote
+        return models.vote
           .count({
             include: [
               {
@@ -148,12 +140,11 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
           })
           .then((vote) => {
             expect(vote).toEqual(0);
-            done();
           });
       });
   });
 
-  it('should fail to create a vote (answer does not exist)', function(done) {
+  it('should fail to create a vote (answer does not exist)', () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -172,13 +163,13 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
 
     Promise.all([db.question.create(question)]);
 
-    request(app)
+    return request(app)
       .post('/api/votes/' + questionId + '/' + answerId)
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(404);
         expect(res.body).toEqual(errors.DOES_NOT_EXIST_ANSWER);
 
-        models.vote
+        return models.vote
           .count({
             include: [
               {
@@ -191,7 +182,6 @@ describe('POST /api/votes/:question_id/:answer_id', function() {
           })
           .then((vote) => {
             expect(vote).toEqual(0);
-            done();
           });
       });
   });

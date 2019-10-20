@@ -13,18 +13,12 @@ const config = require(__dirname + '/../../config/votr.json');
 
 const errors = require('./../../src/helpers/errors');
 
-describe('DELETE /api/questions/:question_id', function() {
-  beforeEach(function() {
-    return db.sequelize.sync().then(function() {
-      return Promise.all([
-        db.question.destroy({where: {}}),
-        db.answer.destroy({where: {}}),
-        db.vote.destroy({where: {}}),
-      ]);
-    });
+describe('DELETE /api/questions/:question_id', () => {
+  beforeEach(async () => {
+    await db.sequelize.sync({force: true});
   });
 
-  it('should delete a question', function(done) {
+  it('should delete a question', () => {
     let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let text = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -35,22 +29,21 @@ describe('DELETE /api/questions/:question_id', function() {
 
     Promise.all([db.question.create(question)]);
 
-    request(app)
+    return request(app)
       .delete('/api/questions/' + id)
       .send({token: token})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(204);
         expect(res.body).toEqual({});
 
         // Check whether question is deleted
-        models.question.count({where: {id: id, token: token}}).then((count) => {
+        return models.question.count({where: {id: id, token: token}}).then((count) => {
           expect(count).toEqual(0);
-          done();
         });
       });
   });
 
-  it('should fail to delete a question (missing argument token)', function(done) {
+  it('should fail to delete a question (missing argument token)', () => {
     let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let text = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -61,22 +54,21 @@ describe('DELETE /api/questions/:question_id', function() {
 
     Promise.all([db.question.create(question)]);
 
-    request(app)
+    return request(app)
       .delete('/api/questions/' + id)
       .send()
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(400);
         expect(res.body).toEqual(errors.MISSING_ARGUMENT_TOKEN);
 
         // Check whether question is deleted
-        models.question.count({where: {id: id, token: token}}).then((count) => {
+        return models.question.count({where: {id: id, token: token}}).then((count) => {
           expect(count).toEqual(1);
-          done();
         });
       });
   });
 
-  it('should fail to delete a question (incorrect token)', function(done) {
+  it('should fail to delete a question (incorrect token)', () => {
     let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let text = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -87,32 +79,30 @@ describe('DELETE /api/questions/:question_id', function() {
 
     Promise.all([db.question.create(question)]);
 
-    request(app)
+    return request(app)
       .delete('/api/questions/' + id)
       .send({token: 'incorrect-token'})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(401);
         expect(res.body).toEqual(errors.UNAUTHORIZED_QUESTION_DELETE);
 
         // Check whether question is deleted
-        models.question.count({where: {id: id, token: token}}).then((count) => {
+        return models.question.count({where: {id: id, token: token}}).then((count) => {
           expect(count).toEqual(1);
-          done();
         });
       });
   });
 
-  it('should fail to delete a question (does not exist)', function(done) {
+  it('should fail to delete a question (does not exist)', () => {
     let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let token = crypto.randomString(config.questionTokenLength, config.questionTokenAlphabet);
 
-    request(app)
+    return request(app)
       .delete('/api/questions/' + id)
       .send({token: token})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(404);
         expect(res.body).toEqual(errors.DOES_NOT_EXIST_QUESTION);
-        done();
       });
   });
 });

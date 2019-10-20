@@ -12,119 +12,107 @@ const config = require(__dirname + '/../../config/votr.json');
 
 const errors = require('./../../src/helpers/errors');
 
-describe('POST /api/questions', function() {
-  beforeEach(function() {
-    return db.sequelize.sync().then(function() {
-      return Promise.all([
-        db.question.destroy({where: {}}),
-        db.answer.destroy({where: {}}),
-        db.vote.destroy({where: {}}),
-      ]);
-    });
+describe('POST /api/questions', () => {
+  beforeEach(async () => {
+    await db.sequelize.sync({force: true});
   });
 
-  test('should create a question (without enabled parameter)', function(done) {
+  test('should create a question (without enabled parameter)', () => {
     let text = faker.lorem.sentences();
     return request(app)
       .post('/api/questions')
       .send({text: text})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(201);
         expect(res.body).toEqual({id: expect.any(String), token: expect.any(String)});
         expect(res.body.id.length).toEqual(config.questionIdLength);
         expect(res.body.token.length).toEqual(config.questionTokenLength);
 
-        models.question
+        return models.question
           .findOne({where: {id: res.body.id, token: res.body.token}})
           .then((question) => {
             let questionPlain = question.get({plain: true});
             expect(questionPlain.text).toEqual(text);
             expect(questionPlain.enabled).toEqual(false);
-            done();
           });
       });
   });
 
-  it('should create a question (enabled = false)', function(done) {
+  it('should create a question (enabled = false)', () => {
     let text = faker.lorem.sentences();
     let enabled = false;
-    request(app)
+    return request(app)
       .post('/api/questions')
       .send({text: text, enabled: enabled})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(201);
         expect(res.body).toEqual({id: expect.any(String), token: expect.any(String)});
         expect(res.body.id.length).toEqual(config.questionIdLength);
         expect(res.body.token.length).toEqual(config.questionTokenLength);
 
-        models.question
+        return models.question
           .findOne({where: {id: res.body.id, token: res.body.token}})
           .then((question) => {
             let questionPlain = question.get({plain: true});
             expect(questionPlain.text).toEqual(text);
             expect(questionPlain.enabled).toEqual(enabled);
-            done();
           });
       });
   });
 
-  it('should create a question (enabled = true)', function(done) {
+  it('should create a question (enabled = true)', () => {
     let text = faker.lorem.sentences();
     let enabled = true;
-    request(app)
+    return request(app)
       .post('/api/questions')
       .send({text: text, enabled: enabled})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(201);
         expect(res.body).toEqual({id: expect.any(String), token: expect.any(String)});
         expect(res.body.id.length).toEqual(config.questionIdLength);
         expect(res.body.token.length).toEqual(config.questionTokenLength);
 
-        models.question
+        return models.question
           .findOne({where: {id: res.body.id, token: res.body.token}})
           .then((question) => {
             let questionPlain = question.get({plain: true});
             expect(questionPlain.text).toEqual(text);
             expect(questionPlain.enabled).toEqual(enabled);
-            done();
           });
       });
   });
 
-  it('should fail to create a question (missing text parameter)', function(done) {
-    request(app)
+  it('should fail to create a question (missing text parameter)', () => {
+    return request(app)
       .post('/api/questions')
       .send()
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(400);
         expect(res.body).toEqual(errors.MISSING_ARGUMENT_TEXT);
-        done();
       });
   });
 
-  it('should fail to create a question (enabled = invalid value)', function(done) {
+  it('should fail to create a question (enabled = invalid value)', () => {
     let text = faker.lorem.sentences();
     let enabled = 'test';
-    request(app)
+    return request(app)
       .post('/api/questions')
       .send({text: text, enabled: enabled})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(422);
         expect(res.body).toEqual(errors.INVALID_VALUE_ENABLED);
-        done();
       });
   });
 
-  it('should fail to create a question (enabled = "")', function(done) {
+  it('should fail to create a question (enabled = "")', () => {
     let text = faker.lorem.sentences();
     let enabled = '';
-    request(app)
+    return request(app)
       .post('/api/questions')
       .send({text: text, enabled: enabled})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(422);
         expect(res.body).toEqual(errors.INVALID_VALUE_ENABLED);
-        done();
       });
   });
 });

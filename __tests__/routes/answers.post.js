@@ -13,18 +13,12 @@ const config = require(__dirname + '/../../config/votr.json');
 
 const errors = require('./../../src/helpers/errors');
 
-describe('POST /api/answers/:question_id', function() {
-  beforeEach(function() {
-    return db.sequelize.sync().then(function() {
-      return Promise.all([
-        db.question.destroy({where: {}}),
-        db.answer.destroy({where: {}}),
-        db.vote.destroy({where: {}}),
-      ]);
-    });
+describe('POST /api/answers/:question_id', () => {
+  beforeEach(async () => {
+    await db.sequelize.sync({force: true});
   });
 
-  it('should create an answer', function(done) {
+  it('should create an answer', () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -43,15 +37,15 @@ describe('POST /api/answers/:question_id', function() {
 
     let answerText = faker.lorem.sentence();
 
-    request(app)
+    return request(app)
       .post('/api/answers/' + questionId)
       .send({token: token, text: answerText})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(201);
         expect(res.body).toEqual({id: expect.any(String)});
         expect(res.body.id.length).toEqual(config.answerIdLength);
 
-        models.answer
+        return models.answer
           .findOne({
             where: {id: res.body.id},
             include: [{model: models.question, as: 'question', where: {id: questionId}}],
@@ -64,12 +58,11 @@ describe('POST /api/answers/:question_id', function() {
               id: res.body.id,
               text: answerText,
             });
-            done();
           });
       });
   });
 
-  it('should fail to create an answer (missing text parameter)', function(done) {
+  it('should fail to create an answer (missing text parameter)', () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -86,26 +79,25 @@ describe('POST /api/answers/:question_id', function() {
 
     Promise.all([db.question.create(question)]);
 
-    request(app)
+    return request(app)
       .post('/api/answers/' + questionId)
       .send({token: token})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(400);
         expect(res.body).toEqual(errors.MISSING_ARGUMENT_TEXT);
 
-        models.answer
+        return models.answer
           .count({
             where: {id: res.body.id},
             include: [{model: models.question, as: 'question', where: {id: questionId}}],
           })
           .then((count) => {
             expect(count).toEqual(0);
-            done();
           });
       });
   });
 
-  it('should fail to create an answer (missing argument token)', function(done) {
+  it('should fail to create an answer (missing argument token)', () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -124,26 +116,25 @@ describe('POST /api/answers/:question_id', function() {
 
     let answerText = faker.lorem.sentence();
 
-    request(app)
+    return request(app)
       .post('/api/answers/' + questionId)
       .send({text: answerText})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(400);
         expect(res.body).toEqual(errors.MISSING_ARGUMENT_TOKEN);
 
-        models.answer
+        return models.answer
           .count({
             where: {id: res.body.id},
             include: [{model: models.question, as: 'question', where: {id: questionId}}],
           })
           .then((count) => {
             expect(count).toEqual(0);
-            done();
           });
       });
   });
 
-  it('should fail to create an answer (incorrect token)', function(done) {
+  it('should fail to create an answer (incorrect token)', () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -162,46 +153,44 @@ describe('POST /api/answers/:question_id', function() {
 
     let answerText = faker.lorem.sentence();
 
-    request(app)
+    return request(app)
       .post('/api/answers/' + questionId)
       .send({token: 'incorrect-token', text: answerText})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(401);
         expect(res.body).toEqual(errors.UNAUTHORIZED_ANSWER_CREATE);
 
-        models.answer
+        return models.answer
           .count({
             where: {id: res.body.id},
             include: [{model: models.question, as: 'question', where: {id: questionId}}],
           })
           .then((count) => {
             expect(count).toEqual(0);
-            done();
           });
       });
   });
 
-  it('should fail to create an answer (does not exist)', function(done) {
+  it('should fail to create an answer (does not exist)', () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let token = crypto.randomString(config.questionTokenLength, config.questionTokenAlphabet);
 
     let answerText = faker.lorem.sentence();
 
-    request(app)
+    return request(app)
       .post('/api/answers/' + questionId)
       .send({token: token, text: answerText})
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(404);
         expect(res.body).toEqual(errors.DOES_NOT_EXIST_QUESTION);
 
-        models.answer
+        return models.answer
           .count({
             where: {id: res.body.id},
             include: [{model: models.question, as: 'question', where: {id: questionId}}],
           })
           .then((count) => {
             expect(count).toEqual(0);
-            done();
           });
       });
   });

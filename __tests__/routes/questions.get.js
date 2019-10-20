@@ -12,18 +12,12 @@ const config = require(__dirname + '/../../config/votr.json');
 
 const errors = require('./../../src/helpers/errors');
 
-describe('GET /api/questions/:question_id', function() {
-  beforeEach(function() {
-    return db.sequelize.sync().then(function() {
-      return Promise.all([
-        db.question.destroy({where: {}}),
-        db.answer.destroy({where: {}}),
-        db.vote.destroy({where: {}}),
-      ]);
-    });
+describe('GET /api/questions/:question_id', () => {
+  beforeEach(async () => {
+    await db.sequelize.sync({force: true});
   });
 
-  it("should get a question's details (without answers)", function(done) {
+  it("should get a question's details (without answers)", () => {
     let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let text = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -34,9 +28,9 @@ describe('GET /api/questions/:question_id', function() {
 
     Promise.all([db.question.create(question)]);
 
-    request(app)
+    return request(app)
       .get('/api/questions/' + id)
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(200);
         expect(res.body).toEqual({
           id: id,
@@ -45,11 +39,10 @@ describe('GET /api/questions/:question_id', function() {
           enabled: enabled,
           answers: [],
         });
-        done();
       });
   });
 
-  it("should get a question's details (with one answer)", function(done) {
+  it("should get a question's details (with one answer)", () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -75,9 +68,9 @@ describe('GET /api/questions/:question_id', function() {
 
     Promise.all([db.question.create(question), db.answer.create(answer)]);
 
-    request(app)
+    return request(app)
       .get('/api/questions/' + questionId)
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(200);
         expect(res.body).toEqual({
           id: questionId,
@@ -87,11 +80,10 @@ describe('GET /api/questions/:question_id', function() {
           enabled,
           answers: [{id: answerId, text: answerText, votes: 0}],
         });
-        done();
       });
   });
 
-  it("should get a question's details (with two answers)", function(done) {
+  it("should get a question's details (with two answers)", () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -130,9 +122,9 @@ describe('GET /api/questions/:question_id', function() {
       db.answer.create(answer2),
     ]);
 
-    request(app)
+    return request(app)
       .get('/api/questions/' + questionId)
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(200);
         expect(res.body).toEqual({
           id: questionId,
@@ -145,11 +137,10 @@ describe('GET /api/questions/:question_id', function() {
             {id: answerId2, text: answerText2, votes: 0},
           ],
         });
-        done();
       });
   });
 
-  it("should get a question's details (with answers and votes)", function(done) {
+  it("should get a question's details (with answers and votes)", () => {
     let questionId = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
     let questionText = faker.lorem.sentences();
     let date = faker.date.recent().toISOString();
@@ -206,9 +197,9 @@ describe('GET /api/questions/:question_id', function() {
       db.vote.create(vote3),
     ]);
 
-    request(app)
+    return request(app)
       .get('/api/questions/' + questionId)
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(200);
         expect(res.body).toEqual({
           id: questionId,
@@ -221,19 +212,17 @@ describe('GET /api/questions/:question_id', function() {
             {id: answerId2, text: answerText2, votes: 1},
           ],
         });
-        done();
       });
   });
 
-  it("should fail to get a question's details (does not exist)", function(done) {
+  it("should fail to get a question's details (does not exist)", () => {
     let id = crypto.randomString(config.questionIdLength, config.questionIdAlphabet);
 
-    request(app)
+    return request(app)
       .get('/api/questions/' + id)
-      .end(function(err, res) {
+      .then(function(res) {
         expect(res.status).toEqual(404);
         expect(res.body).toEqual(errors.DOES_NOT_EXIST_QUESTION);
-        done();
       });
   });
 });
